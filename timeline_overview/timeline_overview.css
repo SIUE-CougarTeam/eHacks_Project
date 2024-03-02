@@ -1,21 +1,44 @@
+:root {
+    --event-background-color: #DDD;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
 .timeline {
-    background-color: aqua;
+    /* background-color: aqua; */
+    margin: 20px auto;
     display: flex;
     flex-direction: column;
+    max-width: 90%;
     gap: 20px;
 }
 
 .event {
-    background-color: blue;
+    /* background-color: blue; */
     display: flex;
     align-items: center;
 }
 
 .timelink {
     font-size: 36px;
-    padding: 16px;
+    /* padding: 16px; */
 }
 
 .event-info {
-    background-color: red;
+    background-color: var(--event-background-color);
+    border-radius: 8px;
+    padding: 4px;
+    gap: px;
+}
+
+.event-summary {
+    /* background-color: orange; */
+}
+
+.event-description {
+    /* background-color: yellow; */
 }
