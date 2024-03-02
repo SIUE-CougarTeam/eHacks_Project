@@ -32,7 +32,7 @@ body {
 .timelink {
     font-size: 64px;
     font-weight: bold;
-    color: blue;
+    color: yellow;
     /* padding: 16px; */
 }
 
@@ -40,12 +40,17 @@ body {
     background-color: #CCC;
     padding: var(--event-padding);
     border-radius: 8px 8px 0 0;
+    max-width: fit-content;
 }
 
 .event-info {
     background-color: var(--event-background-color);
     border-radius: 0 0 8px 8px;
     padding: var(--event-padding);
+}
+
+.event-info[open] {
+    border-radius: 0 8px 8px;
 }
 
 .event-summary {
@@ -57,6 +62,11 @@ body {
 
 .event-description {
     /* background-color: yellow; */
+    font-size: 1.2rem;
+}
+
+.root {
+    border-radius: 8px;
 }
 
 .positive {
@@ -64,7 +74,7 @@ body {
 }
 
 .neutral {
-    color: blue;
+    color: goldenrod;
 }
 
 .negative {
