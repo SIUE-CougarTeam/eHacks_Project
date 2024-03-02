@@ -1,0 +1,21 @@
+.timeline {
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.event {
+    background-color: blue;
+    display: flex;
+    align-items: center;
+}
+
+.timelink {
+    font-size: 36px;
+    padding: 16px;
+}
+
+.event-info {
+    background-color: red;
+}
