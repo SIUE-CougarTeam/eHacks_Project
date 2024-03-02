@@ -1,11 +1,15 @@
 :root {
-    --event-background-color: #DDD;
+    --event-background-color: #CCC;
 }
 
 * {
     margin: 0;
     padding: 0;
     border: 0;
+}
+
+body {
+    background-color: #333;
 }
 
 .timeline {
@@ -24,7 +28,9 @@
 }
 
 .timelink {
-    font-size: 36px;
+    font-size: 64px;
+    font-weight: bold;
+    color: blue;
     /* padding: 16px; */
 }
 
@@ -32,13 +38,27 @@
     background-color: var(--event-background-color);
     border-radius: 8px;
     padding: 4px;
-    gap: px;
 }
 
 .event-summary {
+    font-size: 1.8em;
+    font-weight: bold;
+    list-style: none;
     /* background-color: orange; */
 }
 
 .event-description {
     /* background-color: yellow; */
+}
+
+.positive {
+    color: green;
+}
+
+.neutral {
+    color: blue;
+}
+
+.negative {
+    color: red;
 }
