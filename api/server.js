@@ -1,6 +1,7 @@
 // server.js
 const express = require('express');
 const userRoutes = require('./Users/users.js');
+const engineRoutes = require('./Engine/engine.js');
 const db = require('./db');
 require('dotenv').config();
 
@@ -11,20 +12,21 @@ app.use(express.json());
 
 // Check that header x-api-key is present and valid
 // Route traffic to the appropriate router
-app.use((req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (!apiKey) {
-    return res.status(401).json({ error: 'Missing x-api-key header' });
-  }else if(apiKey == process.env.API_KEY){
-    next();
-  }else{
-    return res.status(401).json({ error: 'Invalid x-api-key header' });
-  }
-});
-
+// app.use((req, res, next) => {
+//   const apiKey = req.headers['x-api-key'];
+//   //console.log('headers:', req.headers);
+//   if (!apiKey) {
+//     return res.status(401).json({ error: 'Missing x-api-key header' });
+//   }else if(apiKey == process.env.API_KEY){
+//     next();
+//   }else{
+//     return res.status(401).json({ error: 'Invalid x-api-key header' });
+//   }
+// });
 
 // Route traffic to the appropriate router
 app.use('/users', userRoutes);
+app.use('/engine', engineRoutes);
 
 // Function to test the database connection
 async function testDbConnection() {

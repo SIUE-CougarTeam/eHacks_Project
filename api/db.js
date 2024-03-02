@@ -8,7 +8,7 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
-console.log('dbConfig: ', dbConfig);
+//console.log('dbConfig: ', dbConfig);
 
 // Create a connection pool
 const pool = mysql.createPool(dbConfig);

@@ -11,14 +11,34 @@ To use this API, you need to install the following npm dependencies:
 - **mysql2**
 - **bcryptjs**
 - **promise**
+- **axios**
 
 You can install these dependencies by running:
 
 ```bash
 npm install express dotenv mysql2 bcryptjs promise
+```
+
+# Environment Variables
+
+The following environment variables are required:
+
+- `OPENAI_KEY`: Your OpenAI API key.
+
+You can set these variables in a `.env` file in the ./api directory.
+
+# Starting the API
+
+To start the API server, run the following command in the project ./api directory:
+
+```bash
+node server.js
+```
+
+By default, the server will run on port 8080. You can access the API locally at http://localhost:8080.
 
 ## Base URL
-The base URL for accessing the API endpoints is:
+The routed base URL for accessing the API endpoints is:
 https://ehacks-api.enginiumtech.com/
 
 ## Authentication
