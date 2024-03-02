@@ -1,0 +1,12 @@
+.flex {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.branch {
+    padding: 4rem 2rem;
+    font-size: 36px;
+}
