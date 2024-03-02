@@ -15,13 +15,13 @@ interfereButton.addEventListener("click", () => {
 });
 
 const beforeUnloadHandler = (event) => {
-    // Recommended
     event.preventDefault();
   
+    // TODO: Insert POST request to unlock timeline here
+
     // Included for legacy support, e.g. Chrome/Edge < 119
     event.returnValue = true;
   };
   
-//   const nameInput = document.querySelector("#name");
     window.addEventListener("beforeunload", beforeUnloadHandler);
   
