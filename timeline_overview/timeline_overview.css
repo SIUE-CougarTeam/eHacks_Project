@@ -1,6 +1,9 @@
 :root {
     --event-background-color: #CCC;
     --event-padding: 4px;
+    --positive: #00CC00;
+    --neutral: #FFFF00;
+    --negative: #FF0000;
 }
 
 * {
@@ -10,7 +13,11 @@
 }
 
 body {
-    background-color: #333;
+    /* background-color: #333; */
+    background-image: linear-gradient(
+        to right,
+        #333, #444 5% 95%, #333 100%
+    );
 }
 
 .timeline {
@@ -70,13 +77,13 @@ body {
 }
 
 .positive {
-    color: green;
+    color: var(--positive);
 }
 
 .neutral {
-    color: goldenrod;
+    color: var(--neutral);
 }
 
 .negative {
-    color: red;
+    color: var(--negative);
 }
