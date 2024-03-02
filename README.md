@@ -16,3 +16,6 @@
    > A forum dedicated to exploring unsolved mysteries, speculative theories, and theoretical science. Users can contribute their "shots in the dark"—personal theories, explanations, or interpretations about various mysteries with little to no evidence. The platform encourages intellectual curiosity and open-minded discussion, allowing users to explore the unknown together.
 3. Manipulated Art Gallery
    > A digital gallery where artists upload their artwork in negative form. Visitors use an on-screen flashlight or another interactive tool to reveal the art in its positive form, simulating the process of developing film in a darkroom. This concept metaphorically represents finding beauty and meaning in the darkness, encouraging users to explore and interact with the art in a novel way.
+
+4. Landing page >> create/select timeline page
+5. Timeline view with sidebar of timelines you're a part of
