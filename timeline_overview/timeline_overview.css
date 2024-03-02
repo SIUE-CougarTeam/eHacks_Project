@@ -1,5 +1,6 @@
 :root {
     --event-background-color: #CCC;
+    --event-padding: 4px;
 }
 
 * {
@@ -25,6 +26,7 @@ body {
     /* background-color: blue; */
     display: flex;
     align-items: center;
+    /* gap: 1rem; */
 }
 
 .timelink {
@@ -34,10 +36,16 @@ body {
     /* padding: 16px; */
 }
 
+.selection-type {
+    background-color: #CCC;
+    padding: var(--event-padding);
+    border-radius: 8px 8px 0 0;
+}
+
 .event-info {
     background-color: var(--event-background-color);
-    border-radius: 8px;
-    padding: 4px;
+    border-radius: 0 0 8px 8px;
+    padding: var(--event-padding);
 }
 
 .event-summary {
