@@ -197,9 +197,7 @@ const createPredictionTimeline = async (prompt) => {
             predictions.push(prediction);
             //console.log('predictions:', predictions);
         }
-
         return predictions;
-
     }
     catch (error) {
         console.error('Error:', error.message);
