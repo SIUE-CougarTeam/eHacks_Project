@@ -1,6 +1,7 @@
 # Database Tables
 This document provides an overview of the database tables used in the application.
 
+
 ## Database Name: ehacks
 
 ## ehacks_users
