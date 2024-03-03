@@ -71,7 +71,7 @@ All API requests require authentication via an API key (`x-api-key` header) and,
 
 ### POST /users/addUser
 - **Description:** Adds a new user to the database.
-- **Request Body:** JSON object with `username`, `email`, `password`, `firstName`, and `lastName` fields.
+- **Request Body:** JSON object with `username`, `password`.
 - **Response:** Success message upon adding the user.
 
 ### POST /users/authenticateUsername
