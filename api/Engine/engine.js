@@ -10,7 +10,7 @@ const defaultUser = 'admin';
 
 // Define a test prompt for debugging purposes
 const testPrompt = 'Tell me a joke.';
-const promptRules = 'I will give you a hypothetical situation and I would like you to make a hypothetical prediction of what will happen next based on the situation. Return the response ONLY in form of a prediction sentence in 3rd person. Create a prediction that has a negative outcome. Do not repeat any of the previous predictions.';
+const promptRules = 'I will give you a hypothetical situation and I would like you to make a hypothetical prediction of what will happen next based on the situation. Return the response ONLY in form of a prediction sentence in 3rd person. Do not repeat any of the previous predictions. Send back as json with `title` and `content` keys. Make `content` a detailed summary of the predicion. Create a relevant `title` given the prediction summary.';
 
 // Define a route handler for POST requests
 router.post('/', async (req, res) => {
@@ -33,7 +33,8 @@ router.post('/', async (req, res) => {
 // Store prompt in roots table
 router.post('/createRoot', async (req, res) => {
     console.log('[engine.js] POST /createRoot ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-    const { prompt, title } = req.body;
+    const { prompt, title } = req.query;
+    console.log('params:', req.query);
 
     if (!prompt || !title) {
         return res.status(400).json({ error: 'Prompt and title are required' }); // Return early with error response
@@ -72,7 +73,7 @@ router.get('/getRandomRoot', async (req, res) => {
 router.post('/lockRoot', async (req, res) => {
     console.log('[engine.js] POST /lockRoot ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
 
-    const { root_id } = req.body;
+    const { root_id } = req.query;
 
     try {
         await db.query('UPDATE roots SET root_lock = 1 WHERE root_id = ?', [root_id]);
@@ -86,7 +87,7 @@ router.post('/lockRoot', async (req, res) => {
 router.post('/unlockRoot', async (req, res) => {
     console.log('[engine.js] POST /unlockRoot ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
 
-    const { root_id } = req.body;
+    const { root_id } = req.query;
 
     try {
         await db.query('UPDATE roots SET root_lock = 0 WHERE root_id = ?', [root_id]);
@@ -100,28 +101,106 @@ router.post('/unlockRoot', async (req, res) => {
 router.post('/createNode', async (req, res) => {
     console.log('[engine.js] POST /createNode ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
 
-    const { root_id, branch_id, title, content } = req.body;
+    const { root_id, bias } = req.query;
 
-    if (!root_id || !title || !content) {
-        return res.status(400).json({ error: 'Root ID, branch ID, title, and content are required' }); // Return early with error response
+    if (!root_id || !bias ) {
+        return res.status(400).json({ error: 'root_id and bias are required' }); // Return early with error response
     }
 
     // check in branches table if a branch exists with the same root_id
     try {
         const [rows] = await db.query('SELECT * FROM branches WHERE root_id = ?', [root_id]);
-        console.log('rows:', rows);
+
         if (!rows) {
+            console.log('No branches found for root_id:', root_id);
             await db.query('INSERT INTO branches (root_id, branch_id) VALUES (?, ?)', [root_id, 0]);
+
+            const [root] = await db.query('SELECT * FROM roots WHERE id = ?', [root_id]);
+            const prompt = root.prompt;
+
+            const requestData = {
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content: promptRules
+                    },
+                    {
+                        role: 'system',
+                        content: prompt
+                    }
+                ]
+            };
+    
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openai_key}`,
+            };
+    
+            const response = await axios.post(apiUrl, requestData, { headers });
+    
+            const chatResponse = response.data.choices[0].message.content;
+            console.log('chatResponse:', chatResponse);
+
+            const chatResponseJSON = JSON.parse(chatResponse);
+            const title = chatResponseJSON.title;
+            const content = chatResponseJSON.content;
+            console.log('title:', title);
+            console.log('content:', content);
+
+            // create new node on branch
+            await insertNewNode(root_id, 0, title, content);
 
             // create new node on branch
             await db.query('INSERT INTO nodes (root_id, branch_id, title, content) VALUES (?, ?, ?, ?)', [root_id, 0, title, content]);
         } else {
             // find the branch_id with the highest value
             const branch_id = await getLatestBranch(root_id);
-            //console.log('branch_id:', branch_id);
+            console.log('latest branch_id:', branch_id);
+
+            // get array of nodes on the branch
+            const [rows] = await db.query('SELECT * FROM nodes WHERE root_id = ? AND branch_id = ? ORDER BY id DESC LIMIT 1', [root_id, branch_id]);
+            console.log('rows:', [rows]);
+
+            const requestData = {
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content: promptRules
+                    },
+                    {
+                        role: 'system',
+                        content: `Make the prediction have a ${bias} outcome.`
+                    },
+                    {
+                        role: 'system',
+                        content: rows.content
+                    }
+                ]
+            };
+    
+            //console.log('requestData:', requestData);
+    
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openai_key}`,
+            };
+    
+            const response = await axios.post(apiUrl, requestData, { headers });
+    
+            const chatResponse = response.data.choices[0].message.content;
+            console.log('chatResponse:', chatResponse);
+
+            const chatResponseJSON = JSON.parse(chatResponse);
+            const title = chatResponseJSON.title;
+            const content = chatResponseJSON.content;
+            console.log('title:', title);
+            console.log('content:', content);
 
             // create new node on branch
-            insertNewNode(root_id, branch_id, title, content);
+            await insertNewNode(root_id, branch_id, title, content);
+            
         }
 
         res.send('Node created successfully');
@@ -135,7 +214,8 @@ router.post('/createNode', async (req, res) => {
 
 router.get('/getRoot', async (req, res) => {
     console.log('[engine.js] GET /getRoot ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-    const { root_id } = req.body;
+    const { root_id } = req.query;
+    console.log ('params:', req.query);
 
     try{
         // For given root_id, get the root info
@@ -159,6 +239,9 @@ router.get('/getRoot', async (req, res) => {
             nodes.push(node);
         }
 
+        console.log('root:', root);
+        console.log('branches:', branches);
+        console.log('nodes:', nodes);
         res.json({ root, branches, nodes });
 
     }catch(error){
@@ -170,7 +253,7 @@ router.get('/getRoot', async (req, res) => {
 router.post('/prediction', async (req, res) => {
     console.log('[engine.js] POST /prediction ', new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
 
-    const { prompt } = req.body;
+    const { prompt } = req.query;
 
     try {
         // Call the function to make the API request
@@ -188,7 +271,6 @@ router.post('/prediction', async (req, res) => {
 // With a root prompt, create an array of timeline which starts with the root prompt. Then use openAiRequestPrediction to create a prediction using the array of timeline as the prompt. Then add the prediction to the timeline array. Then use the new timeline array as the prompt for the next prediction. Repeat this process until the timeline array has 10 predictions. Then return the timeline array.
 const createPredictionTimeline = async (prompt) => {
     try {
-
         let predictions = [prompt];
         let bias = 'negative';
         let prediction;
@@ -204,6 +286,42 @@ const createPredictionTimeline = async (prompt) => {
         throw new Error('Failed to create prediction timeline');
     }
 }
+
+const createPrediction = async (prompt_history, bias) => {
+    try {
+        const requestData = {
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content: promptRules
+                },
+                {
+                    role: 'system',
+                    content: prompt_history
+                }
+            ]
+        };
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openai_key}`,
+        };
+
+        const response = await axios.post(apiUrl, requestData, { headers });
+
+        const chatResponse = response.data.choices[0].message.content;
+
+        console.log('chatResponse:', chatResponse);
+
+        return chatResponse;
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        throw new Error('Failed to create prediction');
+    }
+}
+
 
 const openAiRequestPrediction = async (prompt, bias) => {
     try {
@@ -242,7 +360,6 @@ const openAiRequestPrediction = async (prompt, bias) => {
 const insertNewRoot = async (title, prompt) => {
     try {
         await db.query('INSERT INTO roots (title, prompt) VALUES (?, ?)', [title, prompt]);
-
     } catch (error) {
         console.error('Error executing query:', error.message);
         throw new Error('Failed to insert new root');
@@ -275,6 +392,18 @@ const getLatestBranch = async (root_id) => {
         throw new Error('Failed to get latest branch');
     }
 };
+
+const getBranchNodes = async (root_id, branch_id) => {
+    try {
+        // Get all nodes for a given branch
+        // Send nodes in array
+        const [rows] = await db.query('SELECT * FROM nodes WHERE root_id = ? AND branch_id = ?', [root_id, branch_id]);
+        return rows;
+    } catch (error) {
+        console.error('Error executing query:', error.message);
+        throw new Error('Failed to get branch nodes');
+    }
+}
 
 // Function to make the API request to OpenAI
 const openAiRequestTest = async (prompt) => {
